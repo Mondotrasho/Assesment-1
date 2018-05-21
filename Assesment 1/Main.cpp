@@ -4,11 +4,14 @@
 #include <chrono> //timer for jump
 #include <time.h> //or this idk yet https://www.tutorialspoint.com/c_standard_library/time_h.htm
 #include <windows.h>
+
 using namespace std;
+
 class Player
 {
 public:
 	int x, y;
+	string vis = "o";
 	void m_Player(int newx, int newy) //Moves player Takes new X and Y and Clamps within range
 	{
 		int Xmax = 41;
@@ -24,13 +27,49 @@ public:
 		if (y <= Ymin) { y = Ymin - 1; }
 	};
 };
+
 class Map
 {
 public:
+
+	int map_length = 41;
+	int map_height = 3;
+
 	bool collision[3][41] = { //grid of true tiles you can move into and false tiles you cannot
 		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },//sky
 		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,1,1,1,1,1,1,1 },//middle
 		{ 1,0,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,0,0,1,1,1,1,1,1,1,1,1,1 } };//ground
+
+	string vis[3][41] = {
+		{ " "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," ","_","_"," "," ","|","P","|"," "," "," "," "," "},//sky
+		{ " "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," ","_","_"," ","|","|"," "," "," "," ","|"," "," "," "," "," "},//middle
+		{ " ","^"," "," "," "," "," ","^"," "," "," ","^"," "," "," "," "," "," "," "," "," "," "," "," "," "," ","|","|"," ","|","|"," "," "," "," ","|"," "," "," "," "," "} };//ground
+
+	void print(int x,int y)
+	{
+		for(int i = 0; i < map_height; i++)
+		{
+			for(int j = 0; j < map_length;j++)
+			{
+				if (x == j)
+				{
+					if (y ==i) {
+						cout << "o";
+					}
+					else
+					{
+						cout << vis[i][j];
+					}
+					}
+				else
+				{
+					cout << vis[i][j];
+				}
+			}
+			cout << endl;
+		}
+	}
+
 	bool location_check(int Potential_x, int Potential_y) //checks if a move is valid by taking in a potential new X and Y Coordinate and checking the Map array
 	{
 		if (collision[Potential_y][Potential_x] == true) //WATCH ORDER OF XY
@@ -47,14 +86,6 @@ void gravity(bool playerCurrentLayer[])
 
 int main()
 {
-
-	//Mobs VVV
-	string player_char = "o";
-	//mapVVVV
-	string sky = "                             __   |P|   ";
-	string middle = "                          __ ||   |     ";
-	string ground = "-^-----^---^--------------||-||---|-----";
-
 	Map world;
 	Player player;
 	player.x = 4; //starting x
@@ -62,6 +93,8 @@ int main()
 
 	while (true)
 	{
+		system("cls");
+		world.print(player.x, player.y);
 		//sets the int to GetAsyncKeyState for each key ##NOTE## Aparently what it outputs is a short where 
 		//the binary sets the first bit to 1 so in binary it is 1000 0000 0000 0000 but when I convert it to in its -3k or so
 		int left = GetAsyncKeyState(VK_LEFT);
@@ -103,12 +136,8 @@ int main()
 			}
 
 		}
-		cout << player.x << "-" << player.y << endl; //to debug key presses
+		//cout << player.x << "-" << player.y << endl; //to debug key presses
 	}
-	//cout << ground[1] = player << endl;
-	cout << sky << endl << middle << endl << ground << endl; //prints empty map
-	
-	//arrows work
 	system("pause");
 	return 0;
 }
