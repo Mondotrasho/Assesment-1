@@ -59,7 +59,7 @@ int main()
 	string middle = "                          __ ||   |     ";
 	string ground = "-^-----^---^--------------||-||---|-----";
 
-	cout << ground[1] = player << endl;
+	//cout << ground[1] = player << endl;
 	cout << sky << endl << middle << endl << ground << endl; //prints empty map
 	
 	//arrows work
