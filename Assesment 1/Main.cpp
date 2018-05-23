@@ -26,6 +26,30 @@ public:
 		if (y >= Ymax) { y = Ymax - 1; }
 		if (y <= Ymin) { y = Ymin - 1; }
 	};
+	bool gravity(bool below, float timer)
+	{
+		if (below == true)
+		{
+			if (timer >= 1.0f)
+			{
+				if (y >= 0) {
+					switch (y)
+					{
+					case 0: y = 1; //top air
+						return 1;
+						break;
+					case 1: y = 2; //mid air
+						return 1;
+						break;
+					case 2: y = 2; //ground
+						return 1;
+						break;
+					}
+				}
+			}
+		}
+		return 0;
+	}
 };
 
 class Map
@@ -34,6 +58,8 @@ public:
 
 	int map_length = 41;
 	int map_height = 3;
+
+	
 
 	bool collision[3][41] = { //grid of true tiles you can move into and false tiles you cannot
 		{ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 },//sky
@@ -44,6 +70,12 @@ public:
 		{ " "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," ","_","_"," "," ","|","P","|"," "," "," "," "," "},//sky
 		{ " "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," "," ","_","_"," ","|","|"," "," "," "," ","|"," "," "," "," "," "},//middle
 		{ " ","^"," "," "," "," "," ","^"," "," "," ","^"," "," "," "," "," "," "," "," "," "," "," "," "," "," ","|","|"," ","|","|"," "," "," "," ","|"," "," "," "," "," "} };//ground
+
+	bool below(int y, int x)
+	{//weird order on input WATCH OUT
+		int temp = y + 1; //opersite WATCH
+		return collision[temp][x];
+	}
 
 	void print(int x,int y)
 	{
@@ -79,20 +111,39 @@ public:
 		else { return false; }
 	};
 };
-void gravity(bool playerCurrentLayer[])
-{
 
-}
 
 int main()
 {
+	typedef std::chrono::high_resolution_clock Time;
+	typedef std::chrono::duration<float, std::milli> duration;
+
+	auto start = Time::now(); //Start time
+
+	float timer = 0;		  //this is where we store time
+
+	duration start_jump;
+	duration end_jump;
+
+	bool jump_true = 0;
 	Map world;
 	Player player;
-	player.x = 4; //starting x
-	player.y = 2; //starting y		Add default constructor in final
+	player.x = 27; //starting x
+	player.y = 1; //starting y		Add default constructor in final
 
 	while (true)
 	{
+		auto end = Time::now(); //reads time now
+
+		duration elapsed = end - start; //how long has passed between start and end
+
+		float delta = elapsed.count() / 1000.0f; //calls this function and converts it down to a nice size
+
+		start = Time::now();					//start timer
+
+		int fps = (int)(1.0f / delta);			//frames per second
+		// GAME LOGIC
+
 		system("cls");
 		world.print(player.x, player.y);
 		//sets the int to GetAsyncKeyState for each key ##NOTE## Aparently what it outputs is a short where 
@@ -125,6 +176,7 @@ int main()
 			if (maymove == true)
 			{
 				player.m_Player(player.x, (player.y - 1));
+				jump_true = 1;
 			}
 		}
 		else if (down != 0)
@@ -136,6 +188,24 @@ int main()
 			}
 
 		}
+		
+		if(jump_true == 1)
+		{
+			start_jump = Time::now();
+
+		}
+		bool reset_timer = player.gravity(world.below(player.y, player.x), timer);
+
+		timer += delta;
+		if (reset_timer == 1)
+		{
+			timer = 0.f;
+			reset_timer = 0;
+		}
+		std::cout << timer << "\n";
+		std::cout << player.x << " X and " << player.y <<" Y "<< "\n";
+
+		std::cout << fps << "\n";
 		//cout << player.x << "-" << player.y << endl; //to debug key presses
 	}
 	system("pause");
